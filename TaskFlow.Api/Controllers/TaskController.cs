@@ -26,15 +26,40 @@ public class TasksController : ControllerBase
     [HttpGet("filter")]
     public async Task<IActionResult> Filter([FromQuery] TaskFilterRequest filter)
     {
+        if (filter.Status is < 0 or > 3)
+        {
+            return BadRequest("Invalid status value.");
+        }
+
         var tasks = await _service.GetFilteredAsync(filter);
         return Ok(tasks);
+    }
 
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var task = await _service.GetByIdAsync(id);
+        if (task is null)
+        {
+            return NotFound();
+        }
+        return Ok(task);
+    }
+
+    [HttpGet("/health")]
+    public IActionResult Health()
+    {
+        return Ok(new { status = "Healthy" });
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskRequest request)
     {
         var task = await _service.CreateAsync(request);
-        return CreatedAtAction(nameof(GetAll), new { id = task.Id }, task);
+        return CreatedAtAction(
+            nameof(GetAll),
+            new { id = task.Id },
+            task
+        );
     }
 }
