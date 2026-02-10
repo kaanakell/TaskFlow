@@ -1,3 +1,4 @@
+using TaskFlow.Application.DTOs;
 using TaskFlow.Application.Interfaces;
 using TaskFlow.Domain.Entities;
 
@@ -12,21 +13,37 @@ public class TaskService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<TaskItem>> GetAllAsync()
+    public async Task<IEnumerable<TaskResponse>> GetAllAsync()
     {
-        return await _repository.GetAllAsync();
+        var tasks = await _repository.GetAllAsync();
+
+        return tasks.Select(t => new TaskResponse
+        {
+            Id = t.Id,
+            Title = t.Title,
+            Description = t.Description,
+            CreatedAt = t.CreatedAt
+        });
     }
 
-    public async Task<TaskItem> CreateAsync(string title, string? description)
+    public async Task<TaskResponse> CreateAsync(CreateTaskRequest request)
     {
         var task = new TaskItem
         {
             Id = Guid.NewGuid(),
-            Title = title,
-            Description = description
+            Title = request.Title,
+            Description = request.Description,
+            CreatedAt = DateTime.UtcNow
         };
 
         await _repository.AddAsync(task);
-        return task;
+
+        return new TaskResponse
+        {
+            Id = task.Id,
+            Title = task.Title,
+            Description = task.Description,
+            CreatedAt = task.CreatedAt
+        };
     }
 }
