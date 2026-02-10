@@ -23,14 +23,9 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateTaskRequest request)
+    public async Task<IActionResult> Create(CreateTaskRequest request)
     {
-        if(string.IsNullOrWhiteSpace(request.Title))
-        {
-            return BadRequest("Title is required.");
-        }
-
-        var result = await _service.CreateAsync(request);
-        return CreatedAtAction(nameof(GetAll), new { id = result.Id }, result);
+        var task = await _service.CreateAsync(request);
+        return CreatedAtAction(nameof(GetAll), new { id = task.Id }, task);
     }
 }

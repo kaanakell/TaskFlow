@@ -3,6 +3,10 @@ using TaskFlow.Infrastructure.Persistence;
 using TaskFlow.Application.Interfaces;
 using TaskFlow.Infrastructure.Repositories;
 using TaskFlow.Application.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using TaskFlow.Api.Validators;
+using TaskFlow.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +20,8 @@ builder.Services.AddDbContext<TaskFlowDbContext>(options =>
 });
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<TaskService>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskRequestValidator>();
+builder.Services.AddFluentValidationAutoValidation();
 
 var app = builder.Build();
 
@@ -27,6 +33,8 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionHandlingMiddleWare>();
 
 app.MapControllers();
 
