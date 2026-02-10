@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Infrastructure.Persistence;
+using TaskFlow.Application.Interfaces;
+using TaskFlow.Infrastructure.Repositories;
+using TaskFlow.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,8 @@ builder.Services.AddDbContext<TaskFlowDbContext>(options =>
 {
     options.UseSqlite("Data Source = taskflow.db");
 });
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<TaskService>();
 
 var app = builder.Build();
 
