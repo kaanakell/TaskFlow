@@ -22,6 +22,15 @@ public class TasksController : ControllerBase
         return Ok(tasks);
     }
 
+
+    [HttpGet("filter")]
+    public async Task<IActionResult> Filter([FromQuery] TaskFilterRequest filter)
+    {
+        var tasks = await _service.GetFilteredAsync(filter);
+        return Ok(tasks);
+
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskRequest request)
     {

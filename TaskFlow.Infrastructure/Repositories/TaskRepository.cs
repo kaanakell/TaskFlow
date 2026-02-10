@@ -14,13 +14,35 @@ public class TaskRepository : ITaskRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<TaskItem>> GetAllAsync()
+    public async Task<IEnumerable<TaskItem>> GetFilteredAsync(
+        int? status,
+        DateTime? dueBefore)
     {
-        return await _context.Tasks
-        .AsNoTracking()
+        IQueryable<TaskItem> query = _context.Tasks.AsNoTracking();
+
+        if (status.HasValue)
+        {
+            query = query.Where(t => (int)t.Status == status.Value);
+        }
+
+        if (dueBefore.HasValue)
+        {
+            query = query.Where(t => t.DueDate != null && t.DueDate < dueBefore);
+        }
+
+        return await query
         .OrderBy(t => t.CreatedAt)
         .ToListAsync();
     }
+
+    public async Task<IEnumerable<TaskItem>> GetAllAsync()
+    {
+        return await _context.Tasks
+            .AsNoTracking()
+            .OrderBy(t => t.CreatedAt)
+            .ToListAsync();
+    }
+
 
     public async Task<TaskItem?> GetByIdAsync(Guid id)
     {
